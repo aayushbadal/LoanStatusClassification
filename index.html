@@ -147,7 +147,12 @@
         const errorBox = document.getElementById("error");
         const resultBox = document.getElementById("result");
 
-        if (isNaN(income) || isNaN(credit)) {
+        if (
+          income.trim() === "" ||
+          credit.trim() === "" ||
+          isNaN(income) ||
+          isNaN(credit)
+        ) {
           errorBox.style.display = "block";
           resultBox.style.display = "none";
           return;
