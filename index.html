@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Loan Status Predictor</title>
+    <style>
+      body {
+        background-color: white;
+        font-family: Arial, sans-serif;
+        color: black;
+        text-align: center;
+        width: 420px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: gray;
+        margin-bottom: 20px;
+      }
+
+      .house-icon {
+        width: 120px;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 5px;
+        text-align: left;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+        margin-bottom: 15px;
+        border: 1px solid gray;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      select {
+        width: 100%;
+        padding: 10px;
+        font-size: 15px;
+        margin-bottom: 15px;
+        border: 1px solid gray;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+        background-color: black;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+
+      .error {
+        display: none;
+        color: red;
+        font-size: 13px;
+        text-align: left;
+        margin-bottom: 15px;
+      }
+
+      .result {
+        display: none;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+      }
+
+      .value {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      footer {
+        margin-top: 40px;
+        font-size: 12px;
+        color: gray;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Loan Status Predictor</h1>
+    <p class="subtitle">
+      Classify if your loan will be Approved or Hold or get Rejected using
+      Logistic Regression
+    </p>
+
+    <label for="income">Monthly Income (in NPR)</label>
+    <input
+      type="number"
+      id="income"
+      placeholder="e.g. 10000"
+      step="1000"
+      min="0"
+    />
+
+    <label for="credit">Credit Score</label>
+    <input type="number" id="credit" placeholder="e.g. 500" step="10" min="0" />
+
+    <div class="error" id="error">
+      Please fill in all fields with valid values.
+    </div>
+
+    <button onclick="classifyStatus()">Classify the Status</button>
+
+    <div class="result" id="result">
+      <p>Predicted Status</p>
+      <p class="value" id="resultValue">-</p>
+    </div>
+
+    <script>
+      const classes = ["Approved", "Hold", "Reject"];
+      const coefficient = [
+        [0.00283419, 0.12837747],
+        [0.00033337, 0.00411104],
+        [-0.00316757, -0.13248844],
+      ];
+      const intercept = [-276.87716974, 12.09245789, 264.78471184];
+
+      function softmax(logits) {
+        const maxLogit = Math.max(...logits);
+        const exps = logits.map((val) => Math.exp(val - maxLogit));
+        const sumExps = exps.reduce((a, b) => a + b, 0);
+        return exps.map((val) => val / sumExps);
+      }
+
+      function classifyStatus() {
+        const income = document.getElementById("income").value;
+        const credit = document.getElementById("credit").value;
+        const errorBox = document.getElementById("error");
+        const resultBox = document.getElementById("result");
+
+        if (isNaN(income) || isNaN(credit)) {
+          errorBox.style.display = "block";
+          resultBox.style.display = "none";
+          return;
+        }
+
+        errorBox.style.display = "none";
+
+        const logits = coefficient.map((coef, i) => {
+          return coef[0] * income + coef[1] * credit + intercept[i];
+        });
+
+        const probabilities = softmax(logits);
+        const maxIndex = probabilities.indexOf(Math.max(...probabilities));
+
+        resultValue.textContent = classes[maxIndex];
+        resultBox.style.display = "block";
+      }
+    </script>
+  </body>
+</html>
